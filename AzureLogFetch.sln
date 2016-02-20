@@ -1,18 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureLogFetch", "AzureLogFetch\AzureLogFetch.csproj", "{8AB04020-FF77-46BA-A1E5-7176966B05EC}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 2
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://vstf-us-wa-01.partners.extranet.microsoft.com:8443/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = AzureLogFetch\\AzureLogFetch.csproj
-		SccProjectName1 = AzureLogFetch
-		SccLocalPath1 = AzureLogFetch
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

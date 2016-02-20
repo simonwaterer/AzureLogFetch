@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.StorageClient;
 using System.Net.Mail;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace AzureLogFetch
 {
@@ -12,7 +14,7 @@ namespace AzureLogFetch
     {
         static string smtp = null;
         static string email = null;
-        
+
         static void Main(string[] args)
         {
             if (args.Count() < 3)
@@ -33,8 +35,9 @@ namespace AzureLogFetch
                 smtp = args[3];
                 email = args[4];
             }
+
             var account = new CloudStorageAccount(
-        new StorageCredentialsAccountAndKey(
+        new StorageCredentials(
             instance,
             key
             ),
@@ -46,20 +49,20 @@ namespace AzureLogFetch
 
             //note that I pass the BlobRequestOptions of UseFlatBlobListing which returns all files regardless 
             //of nesting so that I don't have to walk the directory structure
-            foreach (var blob in container.ListBlobs(new BlobRequestOptions() { UseFlatBlobListing = true }))
+            foreach (var blob in container.ListBlobs(useFlatBlobListing: true, blobListingDetails: BlobListingDetails.Metadata))
             {
                 CloudBlob b = blob as CloudBlob;
                 try
                 {
                     b.FetchAttributes();
-                    BlobAttributes blobAttributes = b.Attributes;
-                    TimeSpan span = DateTime.Now.Subtract(blobAttributes.Properties.LastModifiedUtc.ToLocalTime());
+                    DateTime lastModified = b.Properties.LastModified.GetValueOrDefault(DateTime.UtcNow).DateTime;
+                    TimeSpan span = DateTime.UtcNow.Subtract(lastModified);
                     int compare = TimeSpan.Compare(span, TimeSpan.FromHours(1));
                     //we don't want to download and delete the latest log file, because it is incomplete and still being
                     //written to, thus this compare logic
                     if (compare == 1)
                     {
-                        b.DownloadToFile(directory + b.Uri.PathAndQuery);
+                        b.DownloadToFile(directory + b.Uri.PathAndQuery, FileMode.Create);
                         b.Delete();
                     }
                 }
@@ -70,7 +73,7 @@ namespace AzureLogFetch
                 }
 
             }
-            SendMail(instance + " download of logs complete at " + DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToShortTimeString() , "");
+            SendMail(instance + " download of logs complete at " + DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToShortTimeString(), "");
 
 
         }
