@@ -170,21 +170,26 @@ namespace AzureLogFetch
 
         private static void DownloadFile(CloudStorageAccount storageAccount, string blobName, string localFileName, DateTime lastModified)
         {
-            Console.WriteLine("Downloading... " + Path.GetFileName(localFileName));
+            try
+            {
+                Console.WriteLine("Downloading... " + Path.GetFileName(localFileName));
 
-            var blobClient = storageAccount.CreateCloudBlobClient();
-            var blobContainer = blobClient.GetContainerReference("wad-iis-logfiles");
-            var blob = blobContainer.GetBlobReference(blobName);
+                var blobClient = storageAccount.CreateCloudBlobClient();
+                var blobContainer = blobClient.GetContainerReference("wad-iis-logfiles");
+                var blob = blobContainer.GetBlobReference(blobName);
 
-            blob.DownloadToFile(localFileName, FileMode.Create);
+                blob.DownloadToFile(localFileName, FileMode.Create);
 
-            File.SetCreationTimeUtc(localFileName, lastModified);
-            File.SetLastWriteTimeUtc(localFileName, lastModified);
+                File.SetCreationTimeUtc(localFileName, lastModified);
+                File.SetLastWriteTimeUtc(localFileName, lastModified);
 
-            if (deleteBlobs)
-                blob.Delete();
-
-            semaphore.Release();
+                if (deleteBlobs)
+                    blob.Delete();
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         private static TimeSpan ParseAge(string s)
